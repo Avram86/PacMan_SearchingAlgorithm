@@ -7,6 +7,7 @@ namespace ArrayHelper
     {
         /// <summary>
         /// Returns a matrix containing the number of steps to the goal=exit
+        /// STEPS TOWARDS EXIT MATRIX
         /// </summary>
         /// <param name="maze">The given NxN matrix</param>
         /// <returns>A NxN matrix containing stepts to goal, where the goal is marked with 0.</returns>
@@ -22,10 +23,12 @@ namespace ArrayHelper
                 {
                     switch (maze[i, j])
                     {
+                        //the EXIT
                         case -int.MaxValue:
                             stepsMatrix[i, j] = 0;
                             break;
 
+                        //FREE CELLS
                         case 0:
                             {
                                 if (stepsMatrix[i, j] == 0)
@@ -34,13 +37,13 @@ namespace ArrayHelper
                                 }
 
 
-                                //verificam cu o pozitie(rand) mai sus in matrice 
+                                //verificam cu o pozitie(rand) mai sus(pt ca "i"-ul scade in for) in matrice 
                                 if (i - 1 > 0 && stepsMatrix[i - 1, j] == 0 && maze[i - 1, j] == 0)
                                 {
                                     stepsMatrix[i - 1, j] = step + 1;
                                 }
 
-                                //verificam cu o coloana mai la dreapta <- 
+                                //verificam cu o coloana mai la dreapta <- (pt ca "j"-ul scade in for)
                                 if (j - 1 > 0 && stepsMatrix[i, j - 1] == 0 && maze[i, j - 1] == 0)
                                 {
                                     stepsMatrix[i, j - 1] = step + 1;
@@ -50,6 +53,7 @@ namespace ArrayHelper
                             }
                             break;
 
+                        //WALL
                         case -1:
                         default:
                             stepsMatrix[i, j] = -1;
