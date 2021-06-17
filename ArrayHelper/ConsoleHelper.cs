@@ -54,7 +54,7 @@ namespace ArrayHelper
                 StringBuilder line = new StringBuilder();
                 for (int j = 0; j < array.GetLength(1); j++)
                 {
-                    line.Append($"{array[i, j],10}");
+                    line.Append($"{array[i, j], 15}");
                 }
 
                 result.AppendLine(line.ToString());

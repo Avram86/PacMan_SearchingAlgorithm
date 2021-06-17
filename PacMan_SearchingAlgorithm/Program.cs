@@ -10,18 +10,18 @@ namespace PacMan_Lab10Assign4
 
             int[,] maze =
             {
-                { 0,    0,  -1,  -1,    -1},
-                { -1,   0,   0,  -1,    -1},
-                { -1,   -1,  0,   0,    -1},
-                { -1,   -1,  0,   0,    -1},
-                { -1,-1,-1,0, -int.MaxValue}
+                { -1,               0,  0,   0,     int.MaxValue},
+                { -1,               0, -1,  -1,    -1},
+                { -1,               0,  0,   0,    -1},
+                { -1,              -1, -1,   0,    -1},
+                { -1,              -1, -1,   0,    -int.MaxValue}
             };
 
             ArrayHelper.ConsoleHelper.PrintMaze("The Pac-Man maze looks like: ", maze);
             int[,] wayOutMaze = ArrayHelper.ArrayUtilities.WayOutOfMaze(maze);
             ArrayHelper.ConsoleHelper.PrintMaze("The step matrix looks like: ", wayOutMaze);
 
-            string result = ArrayHelper.ArrayUtilities.PrintWayOutOfMaze("The way out is: ", maze, wayOutMaze);
+            string result = ArrayHelper.ArrayUtilities.PrintWayOutOfMaze("The way out is: ", wayOutMaze);
             Console.WriteLine(result);
 
         }

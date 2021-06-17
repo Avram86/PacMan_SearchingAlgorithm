@@ -11,57 +11,160 @@ namespace ArrayHelper
         /// </summary>
         /// <param name="maze">The given NxN matrix</param>
         /// <returns>A NxN matrix containing stepts to goal, where the goal is marked with 0.</returns>
+        //public static int[,] WayOutOfMaze(int[,] maze)
+        //{
+        //    int[,] stepsMatrix = new int[maze.GetLength(0), maze.GetLength(1)];
+        //    int step = 1;
+        //    MatrixItem exit = FindExit(maze);
+
+        //    for (int i = exit.Row; i >= 0; i--)
+        //    {
+        //        for (int j = exit.Column; j >= 0; j--)
+        //        {
+        //            switch (maze[i, j])
+        //            {
+        //                //the EXIT
+        //                case -int.MaxValue:
+        //                    stepsMatrix[i, j] = 0;
+        //                    break;
+
+        //                //FREE CELLS
+        //                case 0:
+        //                    {
+        //                        if (stepsMatrix[i, j] == 0)
+        //                        {
+        //                            stepsMatrix[i, j] = step;
+        //                        }
+
+
+        //                        //verificam cu o pozitie(rand) mai sus(pt ca "i"-ul scade in for) in matrice 
+        //                        if (i - 1 > 0 && stepsMatrix[i - 1, j] == 0 && maze[i - 1, j] == 0)
+        //                        {
+        //                            stepsMatrix[i - 1, j] = step + 1;
+        //                        }
+
+        //                        //verificam cu o coloana mai la dreapta <- (pt ca "j"-ul scade in for)
+        //                        if (j - 1 > 0 && stepsMatrix[i, j - 1] == 0 && maze[i, j - 1] == 0)
+        //                        {
+        //                            stepsMatrix[i, j - 1] = step + 1;
+        //                        }
+
+        //                        step++;
+        //                    }
+        //                    break;
+
+        //                //WALL
+        //                case -1:
+        //                default:
+        //                    stepsMatrix[i, j] = -1;
+        //                    break;
+        //            }
+        //        }
+        //    }
+        //    return stepsMatrix;
+        //}
+
         public static int[,] WayOutOfMaze(int[,] maze)
         {
             int[,] stepsMatrix = new int[maze.GetLength(0), maze.GetLength(1)];
-            int step = 1;
-            MatrixItem exit = FindExit(maze);
-
-            for (int i = exit.Row; i >= 0; i--)
+            for (int i = 0; i < maze.GetLength(0); i++)
             {
-                for (int j = exit.Column; j >= 0; j--)
+                for (int j = 0; j < maze.GetLength(1); j++)
                 {
-                    switch (maze[i, j])
+                    stepsMatrix[i, j] = -1;
+                }
+            }
+
+            bool pacManFound = false;
+            int currentWeight = 0;
+            MatrixItem exit = FindExit(maze);
+            MatrixItem pacMan = FindPacMan(maze);
+            stepsMatrix[exit.Row, exit.Column] = currentWeight;
+            while (!pacManFound)
+            {
+                for (int i = 0; i < maze.GetLength(0); i++)
+                {
+                    for (int j = 0; j < maze.GetLength(1); j++)
                     {
-                        //the EXIT
-                        case -int.MaxValue:
-                            stepsMatrix[i, j] = 0;
-                            break;
-
-                        //FREE CELLS
-                        case 0:
-                            {
-                                if (stepsMatrix[i, j] == 0)
+                        switch (maze[i, j]) /* We're on an free cell (not wall) */
+                        {
+                            //FREE CELLS
+                            case 0:
+                            //PAC-MAN CELL
+                            case int.MaxValue:
                                 {
-                                    stepsMatrix[i, j] = step;
+                                    /*        TOP  
+                                    *  LEFT   X   RIGHT
+                                    *      BOTTOM      
+                                    */
+                                    bool isCloseNeighbourTop = (i - 1 >= 0) /* Top neighbour is not outside of the map */
+                                                               && stepsMatrix[i - 1, j] == currentWeight /* Top neighbour was previously closer to the goal */
+                                                               && stepsMatrix[i, j] == -1; /* Not yet marked cell */
+                                    if (isCloseNeighbourTop)
+                                    {
+                                        stepsMatrix[i, j] = currentWeight + 1;
+                                    }
+
+                                    bool isCloseNeighbourLeft = (j - 1 >= 0)
+                                                                && stepsMatrix[i, j - 1] == currentWeight
+                                                                && stepsMatrix[i, j] == -1;
+                                    if (isCloseNeighbourLeft)
+                                    {
+                                        stepsMatrix[i, j] = currentWeight + 1;
+                                    }
+
+                                    bool isCloseNeighbourBottom = (i + 1 < maze.GetLength(0))
+                                                                  && stepsMatrix[i + 1, j] == currentWeight
+                                                                  && stepsMatrix[i, j] == -1;
+                                    if (isCloseNeighbourBottom)
+                                    {
+                                        stepsMatrix[i, j] = currentWeight + 1;
+                                    }
+
+                                    bool isCloseNeighbourRight = (j + 1 < maze.GetLength(1))
+                                                                 && stepsMatrix[i, j + 1] == currentWeight
+                                                                 && stepsMatrix[i, j] == -1;
+                                    if (isCloseNeighbourRight)
+                                    {
+                                        stepsMatrix[i, j] = currentWeight + 1;
+                                    }
                                 }
+                                break;
+                        }
+                    }
+                }
 
+                currentWeight++;
+                if (stepsMatrix[pacMan.Row, pacMan.Column] >= 0)
+                {
+                    pacManFound = true;
+                }
 
-                                //verificam cu o pozitie(rand) mai sus(pt ca "i"-ul scade in for) in matrice 
-                                if (i - 1 > 0 && stepsMatrix[i - 1, j] == 0 && maze[i - 1, j] == 0)
-                                {
-                                    stepsMatrix[i - 1, j] = step + 1;
-                                }
+                // Uncomment to see intermediary steps:
+                // ConsoleHelper.PrintMaze($"At step {currentWeight} steps matrix looks like: ", stepsMatrix);
+            }
 
-                                //verificam cu o coloana mai la dreapta <- (pt ca "j"-ul scade in for)
-                                if (j - 1 > 0 && stepsMatrix[i, j - 1] == 0 && maze[i, j - 1] == 0)
-                                {
-                                    stepsMatrix[i, j - 1] = step + 1;
-                                }
+            return stepsMatrix;
+        }
 
-                                step++;
-                            }
-                            break;
-
-                        //WALL
-                        case -1:
-                        default:
-                            stepsMatrix[i, j] = -1;
-                            break;
+        public static MatrixItem FindPacMan(int[,] maze)
+        {
+            MatrixItem pacMan = new MatrixItem();
+            for (int row = 0; row < maze.GetLength(0); row++)
+            {
+                for (int col = 0; col < maze.GetLength(1); col++)
+                {
+                    if (maze[row, col] == int.MaxValue)
+                    {
+                        pacMan.Row = row;
+                        pacMan.Column = col;
+                        // no reason to continue iterating
+                        return pacMan;
                     }
                 }
             }
-            return stepsMatrix;
+
+            return pacMan;
         }
 
         /// <summary>
@@ -91,20 +194,13 @@ namespace ArrayHelper
         /// Prints the pair of coordinates where Pac-Man mustgo in order to find the way out
         /// </summary>
         /// <param name="label"></param>
-        /// <param name="maze">The initial maze: NxN matrix</param>
         /// <param name="stepMatrix">The step matrix representing number of steps to goal</param>
         /// <returns></returns>
-        public static string PrintWayOutOfMaze(string label, int[,] maze, int[,] stepMatrix)
+        public static string PrintWayOutOfMaze(string label, int[,] stepMatrix)
         {
             label = label ?? "The way out is: ";
-
-            MatrixItem exit = FindExit(maze);
-
             StringBuilder wayOut = new StringBuilder();
-            wayOut = wayOut.Append($"{label}");
-
             int maxSteps = 0;
-
             for (int row = 0; row < stepMatrix.GetLength(0); row++)
             {
                 for (int col = 0; col < stepMatrix.GetLength(1); col++)
@@ -115,43 +211,39 @@ namespace ArrayHelper
                     }
                 }
             }
-            Console.WriteLine($"Maximum no of steps is: {maxSteps}");
 
-            for (int row = 0; row < stepMatrix.GetLength(0); row++)
+            wayOut.AppendLine($"Maximum no of steps is: {maxSteps}");
+            wayOut.Append($"{label}");
+            while (maxSteps >= 0)
             {
-                for (int col = 0; col < stepMatrix.GetLength(1); col++)
+                for (int row = 0; row < stepMatrix.GetLength(0); row++)
                 {
-                    if (stepMatrix[row, col] == maxSteps)
+                    for (int col = 0; col < stepMatrix.GetLength(1); col++)
                     {
-                        wayOut.Append($"({row},{col}), ");
-                        Console.WriteLine($"({row},{col})={maxSteps} ");
+                        if (stepMatrix[row, col] == maxSteps)
+                        {
+                            if (maxSteps == 0)
+                            {
+                                wayOut.Append($"exit: ");
+                            }
 
-                        //comment out
-                        //when corrected the WayOutOfMaze() 
-                        if (maxSteps == 6)
-                        {
-                            maxSteps = maxSteps - 2;
-                        }
-                        else
-                        {
+                            wayOut.Append($"({row},{col})");
+                            if (maxSteps > 0)
+                            {
+                                wayOut.Append(", ");
+                            }
+
                             maxSteps--;
                         }
-
-                        //uncomment when correct 
-                        //maxSteps--;
-
-                    }
-
-                    if (stepMatrix[row, col] == 0)
-                    {
-                        wayOut.Append($"exit:({row},{col})");
                     }
                 }
             }
 
             return wayOut.ToString();
         }
-
-
     }
+
+
+
 }
+
